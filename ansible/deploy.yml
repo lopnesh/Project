@@ -1,39 +1,30 @@
---- 
-- 
+---
+- hosts: all
   become: true
-  become_method: sudo
-  gather_facts: false
-  hosts: 
-    - all
-  tasks: 
-    - 
-      command: "apt update"
-      name: "Update repos"
-    - 
-      apt: 
-        name: 
-          - apt-transport-https
-          - gnupg
-          - ca-certificates
-          - curl
-          - software-properties-common
-      name: "Install prerequisites for Docker repository"
-    - 
-      apt_key: 
-        url: "https://download.docker.com/linux/ubuntu/gpg"
-      name: "Add Docker GPG key"
-    - 
-      apt_repository: 
-        repo: "deb [arch=amd64] https://download.docker.com/{{ ansible_system | lower }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
-      name: "Add Docker APT repository"
-    - 
-      apt: 
-        name: 
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
-        update_cache: true
-      name: "Install Docker CE"
-    - 
-      command: "groupadd docker && usermod -aG docker $USER && newgrp docker && service docker start"
-      name: "add user and start docker"
+  vars_files:
+    - vars/default.yml
+
+  tasks:
+    - name: Install aptitude using apt
+      apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+    - name: Install required system packages
+      apt: name={{ item }} state=latest update_cache=yes
+      loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools']
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt: update_cache=yes name=docker-ce state=latest
+
+    - name: Install Docker Module for Python
+      pip:
+        name: docker
