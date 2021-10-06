@@ -3,7 +3,7 @@ terraform {
     organization = "lopnesh"
 
     workspaces {
-      name = "iac"
+      name = "iac_ticktak"
     }
   }
 }
