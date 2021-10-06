@@ -1,18 +1,31 @@
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"]
+}
+
 resource "aws_instance" "linux-instance" {
-  ami           = "ami-06ec8443c2a35b0ba"
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
 
-  subnet_id = aws_subnet.lesson12-subnet-public-3.id
+  subnet_id = aws_subnet.ticktak-subnet-public-3.id
 
-  vpc_security_group_ids = [aws_security_group.lesson12-all.id]
+  vpc_security_group_ids = [aws_security_group.ticktak-all.id]
 
-  key_name = "kubeitea"
+  key_name = "ansible"
 
   tags = {
     "Name" = "linux-instance"
   }
 
-  depends_on = [
-    aws_db_instance.lesson12-rds,
-  ]
 }
