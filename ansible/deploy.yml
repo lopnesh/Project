@@ -1,0 +1,27 @@
+- hosts: all
+  gather_facts: false
+  become: true
+  become_method: sudo
+  tasks:
+  - name: Update repos
+    command: apt update
+
+  - name: Install prerequisites for Docker repository
+    apt:
+      name: ['apt-transport-https', 'gnupg', 'ca-certificates', 'curl', 'software-properties-common']
+      
+  - name: Add Docker GPG key
+    apt_key:
+      url:  https://download.docker.com/linux/ubuntu/gpg
+
+  - name: Add Docker APT repository
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/{{ ansible_system | lower }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+
+  - name: Install Docker CE
+    apt:
+      name: ['docker-ce', 'docker-ce-cli', 'containerd.io']
+      update_cache: yes
+  
+  - name: add user and start docker
+    command: groupadd docker && usermod -aG docker $USER && newgrp docker && service docker start    
