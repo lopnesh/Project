@@ -52,7 +52,7 @@ jobs:
         id: output
         run: terraform output > ../terraform.log
 
-      - name: Upload actifacts
+      - name: Upload actiffacts
         uses: actions/upload-artifact@v2
         with:
           name: terraform
